@@ -17,7 +17,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public abstract class BaseService<Model extends BaseEntityAudit, DTO extends BaseDTO, ID extends UUID> {
     private final BaseRepository<Model, ID> repository;
-    private final BaseMapper<Model, DTO> mapper;
+    private final BaseMapper<Model, DTO, ID> mapper;
 
     public List<DTO> findAll() {
         return mapper.toDTO((List<Model>) repository.findAll());
@@ -38,7 +38,7 @@ public abstract class BaseService<Model extends BaseEntityAudit, DTO extends Bas
     @Transactional
     public DTO save(DTO dto) {
         ID id = (ID)dto.getId();
-        if (id != null && repository.existsById(id)) {
+        if (id != null && !repository.existsById(id)) {
             throw new NotFoundException("ID not found");
         }
         return this.forceSave(dto);
